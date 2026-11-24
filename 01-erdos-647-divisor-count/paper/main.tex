@@ -1,0 +1,413 @@
+% =====================================================================
+%  On Erdős Problem #647: A Divisor-Count Inequality
+%  Background and research framework (draft)
+%
+%  Build:  latexmk -pdf -outdir=build main.tex
+%     or:  pdflatex main && bibtex main && pdflatex main && pdflatex main
+% =====================================================================
+\documentclass[11pt]{amsart}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue!50!black]{hyperref}
+
+% ---------------------------------------------------------------------
+% Theorem environments
+% ---------------------------------------------------------------------
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{claim}[theorem]{Reported claim}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem*{notation}{Notation}
+
+\numberwithin{equation}{section}
+
+% ---------------------------------------------------------------------
+% Macros
+% ---------------------------------------------------------------------
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\DeclareMathOperator{\lcm}{lcm}
+\newcommand{\Mx}{\mathcal{M}}   % running maximum
+\newcommand{\Dl}{\Delta}        % excess
+
+% ---------------------------------------------------------------------
+\title[On Erd\H{o}s Problem \#647]{On Erd\H{o}s Problem \#647:\\ A Divisor-Count Inequality\\[0.5ex]
+  {\normalfont\small Background, Known Results, and a Research Framework}}
+
+\author{Krishiv Vaid}
+\address{University of Waterloo, Waterloo, Ontario, Canada}
+% \email{...}  % add a contact e-mail before circulating
+
+\date{Draft of 24 November 2026}
+
+\keywords{divisor function, Erd\H{o}s problems, prime constellations, Schinzel's Hypothesis H}
+\subjclass[2020]{Primary 11N56; Secondary 11A25, 11N36, 11Y70}
+
+\begin{document}
+
+\begin{abstract}
+Let $\tau(m)$ denote the number of positive divisors of $m$. Erd\H{o}s Problem \#647, a problem of Erd\H{o}s and Selfridge, asks whether there is an integer $n>24$ such that $m+\tau(m)\le n+2$ for every positive integer $m<n$. Equivalently, it asks whether the integers $n-1, n-2, \dots, 1$ can all have ``few'' divisors at once, in the precise sense that $\tau(n-k)\le k+2$ for every $1\le k<n$. Erd\H{o}s considered infinitely many such $n$ ``extremely doubtful'', and in 1992 he offered a prize for a single example with $n>24$.
+
+This document does \emph{not} solve the problem and contains no new results. Its purpose is to state the problem precisely, record its history and the known prize offer, survey the relevant classical theory of the divisor function, and summarize what has been reported about this specific problem, carefully separating refereed results from unrefereed computations and claims. It closes with the research objectives and methods for the investigation that follows.
+\end{abstract}
+
+\maketitle
+
+\noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\small
+\textbf{Status of this document.} This is a background and problem-definition paper. It contains no proof, disproof, or new partial result. Statements in Section~\ref{sec:knowledge} labelled \emph{Reported claim} come from preprints, software repositories or forum posts that have not been peer-reviewed. They have not been independently checked by the author and must not be cited as established.}}
+
+\tableofcontents
+
+% =====================================================================
+\section{Introduction}\label{sec:intro}
+% =====================================================================
+
+The divisor-counting function $\tau$ is one of the oldest objects in multiplicative number theory. Its behaviour is very irregular: $\tau(p)=2$ for every prime $p$, yet $\tau$ takes values larger than any fixed power of $\log m$ infinitely often, and its typical size, its average size and its maximal size are all different (Section~\ref{subsec:classical}). Because of this irregularity, inequalities that ask $\tau$ to be \emph{simultaneously} small at many nearby integers are hard. They require every member of a block of consecutive integers to have few prime factors, which is a condition about prime constellations, the same territory as the twin prime conjecture and Schinzel's Hypothesis~H~\cite{SchinzelSierpinski1958}.
+
+Paul Erd\H{o}s (1913--1996) posed, collected and publicized many problems of this kind, often attaching prizes to them. The website \emph{Erd\H{o}s Problems}, maintained by T.~F.~Bloom~\cite{Bloom647,BloomFAQ}, catalogues more than a thousand of them, with references to Erd\H{o}s's original sources. Problem \#647 on that list concerns the function $m\mapsto m+\tau(m)$. The question is whether, just below some $n>24$, this function can stay at most $n+2$ all the way down from $m=n-1$ to $m=1$.
+
+The problem has a deliberately finite flavour. A single example would settle it in the affirmative, which is why the community database classes it as \emph{verifiable}~\cite{TeorthDatabase}. A negative answer, which Erd\H{o}s expected, would need a proof covering infinitely many $n$, and no finite computation can supply that.
+
+\subsection*{Organization}
+Section~\ref{sec:notation} fixes notation. Section~\ref{sec:statement} states the problem in two equivalent forms. Sections~\ref{sec:history} and~\ref{sec:prize} record the history and the prize offer. Section~\ref{sec:knowledge} surveys classical results on $\tau$ and what has been reported about this problem. Sections~\ref{sec:objectives}--\ref{sec:methods} describe the planned investigation, and Section~\ref{sec:conclusion} concludes.
+
+% =====================================================================
+\section{Mathematical Definitions and Notation}\label{sec:notation}
+% =====================================================================
+
+Throughout, $\N=\{1,2,3,\dots\}$ denotes the positive integers. The letters $m,n,k,d$ denote positive integers, and $p,q$ denote primes.
+
+\begin{definition}[Divisor function]\label{def:tau}
+For $m\in\N$, the \emph{number of divisors} of $m$ is
+\begin{equation}\label{eq:tau}
+  \tau(m) \;=\; \sum_{d\mid m} 1,
+\end{equation}
+where the sum runs over the positive divisors $d$ of $m$. (Many texts write $d(m)$ or $\sigma_0(m)$.)
+\end{definition}
+
+If $m=p_1^{a_1}\cdots p_r^{a_r}$ is the prime factorization of $m$ with distinct primes $p_i$ and exponents $a_i\ge 1$, then
+\begin{equation}\label{eq:tau-product}
+  \tau(m) \;=\; \prod_{i=1}^{r}(a_i+1).
+\end{equation}
+In particular, $\tau$ is multiplicative: $\tau(ab)=\tau(a)\tau(b)$ whenever $\gcd(a,b)=1$. Also $\tau(m)=2$ if and only if $m$ is prime, and $\tau(m)$ is odd if and only if $m$ is a perfect square~\cite[Ch.~16]{HardyWright2008}.
+
+\begin{definition}[Prime-counting functions]\label{def:omega}
+For $m=p_1^{a_1}\cdots p_r^{a_r}$ as above, let $\omega(m)=r$ be the number of distinct prime factors of $m$, and let $\Omega(m)=a_1+\cdots+a_r$ be the number of prime factors counted with multiplicity.
+\end{definition}
+
+From \eqref{eq:tau-product}, $2^{\omega(m)}\le\tau(m)\le 2^{\Omega(m)}$.
+
+\begin{definition}[Running maximum and excess]\label{def:M}
+For $n\ge 2$, define
+\begin{equation}\label{eq:M}
+  \Mx(n) \;=\; \max_{1\le m<n}\bigl(m+\tau(m)\bigr)
+  \qquad\text{and}\qquad
+  \Dl(n) \;=\; \Mx(n)-n.
+\end{equation}
+\end{definition}
+
+The sequence $m+\tau(m)$ is OEIS A062249~\cite{OEIS_A062249}, and $\Dl(n)$ is OEIS A400986~\cite{OEIS_A400986}.
+
+\begin{notation}
+We write $f(x)=O(g(x))$ or $f(x)\ll g(x)$ if $|f(x)|\le Cg(x)$ for some constant $C$ and all sufficiently large $x$, and $f(x)=o(g(x))$ if $f(x)/g(x)\to 0$. The symbol $\gamma$ denotes the Euler--Mascheroni constant, and $\log$ is the natural logarithm. ``Almost all $n$'' means all $n$ outside a set of natural density zero.
+\end{notation}
+
+% =====================================================================
+\section{Statement of Erd\H{o}s Problem \#647}\label{sec:statement}
+% =====================================================================
+
+The statement below is copied verbatim, in mathematical content, from the problem's entry on the Erd\H{o}s Problems website~\cite{Bloom647}. The website notes that its statements are sometimes reworded from Erd\H{o}s's originals for clarity~\cite{BloomFAQ}. The original sources~\cite{Erdos1979MathMag,Erdos1979Acta,Erdos1980Survey,Erdos1992Eureka,Erdos1995Octogon} were not consulted directly for this draft (see Section~\ref{subsec:unverified}). The formulation is also consistent with OEIS A087280~\cite{OEIS_A087280}, which cites~\cite[p.~68, Problem~4]{Erdos1979MathMag}, and with the Lean statement in~\cite{FormalConjectures647}.
+
+\begin{problem}[Erd\H{o}s--Selfridge; Erd\H{o}s Problem \#647]\label{prob:main}
+Does there exist an integer $n>24$ such that
+\begin{equation}\label{eq:main}
+  \boxed{\;\max_{1\le m<n}\bigl(m+\tau(m)\bigr)\;\le\; n+2\;}
+\end{equation}
+\end{problem}
+
+\subsection{First formulation: a running maximum}
+In the notation of Definition~\ref{def:M}, Problem~\ref{prob:main} asks whether
+\begin{equation}\label{eq:delta}
+  \Dl(n)\le 2 \quad\text{for some } n>24.
+\end{equation}
+Think of the graph of $m\mapsto m+\tau(m)$. Since $\tau(m)\ge 1$, the graph always lies above the diagonal. The question is whether, for some $n>24$, the graph over $[1,n)$ never rises more than $2$ above the level $n$.
+
+\subsection{Second formulation: a family of divisor constraints}
+Substituting $m=n-k$ with $1\le k\le n-1$, inequality~\eqref{eq:main} is equivalent to
+\begin{equation}\label{eq:shifts}
+  \tau(n-k)\;\le\; k+2 \qquad\text{for every } k=1,2,\dots,n-1.
+\end{equation}
+So $n$ is a solution exactly when $\tau(n-1)\le 3$, $\tau(n-2)\le 4$, $\tau(n-3)\le 5$, and so on. The constraints at small $k$ are the restrictive ones: they force $n-1$ to be a prime or the square of a prime, $n-2$ to have at most four divisors, and so on. The constraints at large $k$ hold automatically for large $n$, since $\tau(m)$ grows much more slowly than $m$ (Theorem~\ref{thm:epsilon}). This is the form in which the problem is usually attacked in the recent literature~\cite{Forum647,MianSiddique2026}.
+
+\begin{remark}[The constant $2$ cannot be lowered]\label{rem:best-possible}
+The website~\cite{Bloom647} notes that the constant $n+2$ is best possible, because
+\begin{equation}\label{eq:best}
+  \max\bigl(\tau(n-1)+n-1,\ \tau(n-2)+n-2\bigr)\;\ge\; n+2 .
+\end{equation}
+This is elementary and holds for every $n\ge 7$. One of $n-1$ and $n-2$ is even. An even number $m\ge 4$ has $\tau(m)\ge 3$, and an even number $m\ge 6$ has $\tau(m)\ge 4$ (its divisors include $1,2,m/2,m$). Hence $\Dl(n)\ge 2$ for all $n\ge 7$. Problem~\ref{prob:main} therefore asks whether the smallest possible value $\Dl(n)=2$ is ever attained again after $n=24$.
+\end{remark}
+
+\begin{remark}[Small solutions]\label{rem:small}
+According to~\cite{Bloom647}, inequality~\eqref{eq:main} holds for $n=24$. The published data of OEIS A400986~\cite{OEIS_A400986} show that the integers $2\le n\le 24$ with $\Dl(n)\le 2$ are
+\[
+  n\in\{2,3,4,5,6,8,10,12,24\}.
+\]
+OEIS A087280~\cite{OEIS_A087280} lists the solutions of the equality $\Mx(n)=n+2$ as $5,8,10,12,24$. These finite facts are quoted from the cited sources and are not used as evidence about the infinite question.
+\end{remark}
+
+\begin{remark}[Range of $m$]
+Since $\tau$ is defined on positive integers, $m$ ranges over $1\le m<n$. The notation $\max_{m<n}$ in~\cite{Bloom647} and the notation in~\eqref{eq:main} therefore describe the same quantity.
+\end{remark}
+
+% =====================================================================
+\section{Historical Background}\label{sec:history}
+% =====================================================================
+
+\subsection{Origin and attribution}
+The website attributes the problem jointly to Erd\H{o}s and John L.~Selfridge~\cite{Bloom647}. Selfridge was a frequent collaborator of Erd\H{o}s and worked on many problems in combinatorial and computational number theory.
+
+The earliest printed sources listed for the problem are two 1979 papers of Erd\H{o}s, both titled \emph{Some unconventional problems in number theory}: one in \emph{Mathematics Magazine}~\cite{Erdos1979MathMag}, where it is Problem~4 on p.~68~\cite{OEIS_A087280}, and one in \emph{Acta Mathematica Academiae Scientiarum Hungaricae}~\cite{Erdos1979Acta}. It appears again in Erd\H{o}s's 1980 survey of combinatorial number theory~\cite[p.~107]{Erdos1980Survey}, in a 1992 article in \emph{Eureka}~\cite{Erdos1992Eureka}, and in a 1995 article in \emph{Octogon Mathematical Magazine}~\cite{Erdos1995Octogon}. Guy discusses it in Section~B8 of \emph{Unsolved Problems in Number Theory}~\cite{Guy2004}.
+
+\emph{Unverified:} whether Erd\H{o}s and Selfridge discussed the problem before 1979, and in what circumstances, could not be established from the sources available for this draft.
+
+\subsection{Erd\H{o}s's own commentary}
+The website~\cite{Bloom647} reports two further statements from the 1979 papers. They show what Erd\H{o}s expected.
+
+\begin{conjecture}[Erd\H{o}s~\cite{Erdos1979MathMag}, as reported in~\cite{Bloom647}]\label{conj:infty}
+Erd\H{o}s called it ``extremely doubtful'' that there are infinitely many $n$ satisfying~\eqref{eq:main}, and suggested the stronger statement
+\begin{equation}\label{eq:delta-infty}
+  \lim_{n\to\infty}\ \max_{m<n}\bigl(\tau(m)+m-n\bigr)\;=\;\infty,
+  \qquad\text{that is,}\qquad \Dl(n)\to\infty.
+\end{equation}
+\end{conjecture}
+
+\begin{conjecture}[Erd\H{o}s~\cite{Erdos1979Acta}, as reported in~\cite{Bloom647}]\label{conj:window}
+Erd\H{o}s wrote that it ``seems certain'' that for every $k$ there are infinitely many $n$ with
+\begin{equation}\label{eq:window}
+  \max_{n-k<m<n}\bigl(m+\tau(m)\bigr)\;\le\; n+2,
+\end{equation}
+but that ``this is hopeless with our present methods''. He noted that it follows from Schinzel's Hypothesis~H~\cite{SchinzelSierpinski1958}.
+\end{conjecture}
+
+These two conjectures pull in opposite directions, and that is the heart of the problem. For any \emph{fixed} window of $k$ consecutive integers below $n$, the constraints~\eqref{eq:shifts} with $1\le k'<k$ are expected to be satisfiable infinitely often, as a prime-constellation phenomenon. Erd\H{o}s nevertheless expected the \emph{full} family of constraints, over the whole range $1\le k<n$, to fail for every large $n$. Loosely, some integer $m$ well below $n$ with unusually many divisors should always push $m+\tau(m)$ above $n+2$.
+
+\subsection{Subsequent developments}
+Terence Tao observed that, since $\tau(m)$ behaves like $2^{\omega(m)}$, Problem \#647 is similar to (but slightly weaker than) the first part of Erd\H{o}s Problem \#679, and much stronger than Problems \#413 and \#248~\cite{Bloom647,Forum647}. The precise statements of those problems are not reproduced here.
+
+From 2025 onwards the problem attracted considerable attention on the Erd\H{o}s Problems forum, much of it computational and much of it AI-assisted, as disclosed by the authors. This activity is summarized, with appropriate caveats, in Section~\ref{subsec:specific}. In October 2026 the website suspended new problem comments and proof claims and stopped displaying problem statuses~\cite{BloomChanges2026}.
+
+% =====================================================================
+\section{Prize and Recognition}\label{sec:prize}
+% =====================================================================
+
+\subsection{The prize offer}
+According to~\cite{Bloom647}, in~\cite{Erdos1992Eureka} Erd\H{o}s offered \pounds 25 \emph{for an example} of an integer $n>24$ satisfying~\eqref{eq:main}, remarking ``I am being rather stingy but we old people are stingy.'' The website displays this as \$44, a conversion at approximate 1992 exchange rates, and the community database records it as \pounds 25~\cite{TeorthDatabase}.
+
+\subsection{Administration and conditions}
+According to the website's FAQ~\cite{BloomFAQ}:
+\begin{enumerate}[label=(\roman*)]
+  \item Erd\H{o}s prizes are now awarded by the \emph{Combinatorics Foundation}, administered by Steve Butler.
+  \item Prizes are awarded only after a solution is \emph{published in a reputable journal}, together with documentation verifying that Erd\H{o}s offered that amount.
+  \item Eligible solvers should contact Steve Butler directly. The owner of the website has no involvement with, or influence over, the distribution of prizes.
+  \item Where Erd\H{o}s offered different amounts for the same problem, the website shows the highest amount on record.
+\end{enumerate}
+
+\subsection{Caveats}
+\begin{itemize}
+  \item As reported, the offer is for \emph{an example} with $n>24$. Whether a proof of \emph{non-existence} would be eligible for this prize is not stated in the sources consulted, and should be treated as \textbf{unverified}.
+  \item No example is known (Section~\ref{subsec:specific}), so the prize has presumably not been claimed. No record of a claim was found, but the administrator's records were not consulted.
+  \item A prize is never guaranteed or automatic. It depends on publication, verification and the administrator's decision.
+\end{itemize}
+
+% =====================================================================
+\section{Existing Mathematical Knowledge}\label{sec:knowledge}
+% =====================================================================
+
+This section separates \textbf{(A)} classical, refereed results about the divisor function in general (Section~\ref{subsec:classical}) from \textbf{(B)} statements about Problem~\ref{prob:main} itself (Section~\ref{subsec:specific}). Results of type (A) do not by themselves settle the problem. Almost everything of type (B) beyond Erd\H{o}s's own remarks is, as of this writing, unrefereed.
+
+\subsection{Classical results on the divisor function}\label{subsec:classical}
+
+The following are standard. Proofs can be found in the references given.
+
+\begin{theorem}[Elementary upper bound]\label{thm:sqrt}
+For every $m\in\N$, $\tau(m)\le 2\sqrt{m}$.
+\end{theorem}
+This follows by pairing each divisor $d<\sqrt m$ with $m/d>\sqrt m$.
+
+\begin{theorem}[{\cite[Ch.~18]{HardyWright2008}}]\label{thm:epsilon}
+For every $\varepsilon>0$, $\tau(m)=O_\varepsilon(m^{\varepsilon})$.
+\end{theorem}
+
+\begin{theorem}[Wigert; see {\cite[Ch.~18]{HardyWright2008}}]\label{thm:wigert}
+\begin{equation}\label{eq:wigert}
+  \limsup_{m\to\infty}\ \frac{\log\tau(m)\,\log\log m}{\log m}\;=\;\log 2 .
+\end{equation}
+\end{theorem}
+
+\begin{theorem}[Nicolas--Robin~\cite{NicolasRobin1983}]\label{thm:nicolas-robin}
+For every $m\ge 3$,
+\begin{equation}\label{eq:nr}
+  \log\tau(m)\;\le\; 1.5379\,\log 2\,\frac{\log m}{\log\log m}.
+\end{equation}
+\end{theorem}
+
+\begin{theorem}[Dirichlet; see {\cite[Ch.~18]{HardyWright2008}}, {\cite[Ch.~3]{Apostol1976}}]\label{thm:dirichlet}
+As $x\to\infty$,
+\begin{equation}\label{eq:dirichlet}
+  \sum_{m\le x}\tau(m)\;=\;x\log x+(2\gamma-1)\,x+O\bigl(\sqrt{x}\bigr).
+\end{equation}
+\end{theorem}
+
+\begin{theorem}[Hardy--Ramanujan~\cite{HardyRamanujan1917}; see also {\cite[Ch.~22]{HardyWright2008}}]\label{thm:hr}
+The functions $\omega(m)$ and $\Omega(m)$ both have normal order $\log\log m$. Consequently, since $2^{\omega(m)}\le\tau(m)\le 2^{\Omega(m)}$, for almost all $m$,
+\begin{equation}\label{eq:normal}
+  \tau(m)\;=\;(\log m)^{\log 2+o(1)}.
+\end{equation}
+\end{theorem}
+
+Together, these results show that $\tau$ is very small compared with $m$: subpolynomial by Theorem~\ref{thm:epsilon}, with the explicit bound~\eqref{eq:nr}. It is about $\log m$ on average~\eqref{eq:dirichlet} and about $(\log m)^{0.69}$ typically~\eqref{eq:normal}, but it is occasionally as large as $2^{(1+o(1))\log m/\log\log m}$~\eqref{eq:wigert}. In terms of Problem~\ref{prob:main}, the constraint~\eqref{eq:shifts} at shift $k$ fails only if $\tau(n-k)>k+2$. By the bounds above, this is possible only when $k$ is rather small compared with $n$. The difficulty lies in controlling all the small shifts \emph{simultaneously}.
+
+\begin{remark}[Hypothesis H]
+Schinzel's Hypothesis~H~\cite{SchinzelSierpinski1958} predicts that a finite family of irreducible integer polynomials with no fixed prime divisor takes prime values simultaneously infinitely often. It is a far-reaching generalization of the twin prime conjecture and is wide open. Conjecture~\ref{conj:window} follows from it, according to Erd\H{o}s~\cite{Erdos1979Acta}.
+\end{remark}
+
+\subsection{What is known about Problem \#647 specifically}\label{subsec:specific}
+
+\subsubsection*{Status}
+As of 24 November 2026 the problem is \textbf{open}. No $n>24$ satisfying~\eqref{eq:main} is known, and no proof of non-existence has been accepted. The community database~\cite{TeorthDatabase} lists it as \emph{verifiable} (open, but provable by a finite example if the answer is yes). That label was last updated on 31 August 2025. The website itself no longer displays statuses~\cite{BloomChanges2026}.
+
+\subsubsection*{Refereed results}
+Apart from Erd\H{o}s's own remarks (Conjectures~\ref{conj:infty} and~\ref{conj:window}) and the elementary Remark~\ref{rem:best-possible}, the author found no peer-reviewed publication proving a partial result specific to Problem~\ref{prob:main}. A more thorough search of MathSciNet and zbMATH is planned (Section~\ref{subsec:unverified}).
+
+\subsubsection*{Reported computations (unrefereed)}
+Table~\ref{tab:computations} lists the computational verifications reported as of this writing. All of them exclude solutions only in a \emph{finite} range. None of them, singly or together, says anything about $n$ beyond its stated range, and none bears on the infinite question.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}p{4.2cm}p{2.6cm}p{6.2cm}@{}}
+\toprule
+\textbf{Source} & \textbf{Reported range} & \textbf{Nature} \\
+\midrule
+OEIS A087280~\cite{OEIS_A087280} & $n<10^{10}$ & Long-standing comment in the OEIS entry. \\
+Id\'en~\cite{Iden2026,Forum647} & $24<n\le10^{12}$ & Direct segmented sieve; Zenodo preprint. Unrefereed. \\
+Hughes~\cite{Hughes2026,Forum647} & $n\lesssim6.16\times10^{17}$ & Search over a reported modular reduction, with a Python checker. Unrefereed. \\
+Cited in~\cite{MianSiddique2026,Forum647} & $n\lesssim9.17\times10^{18}$ & Search within a modular reduction whose Lean part uses \texttt{native\_decide}. Unrefereed. \\
+Veljjanoski~\cite{Veljjanoski2026,OEIS_A087280} & $24<n\le10^{22}$ & GPU sieve; described by its author as uncertified. \\
+Mian--Siddique~\cite{MianSiddique2026} & $24<n\le10^{9}$ & Lean~4 proof checked by the kernel (no \texttt{sorry}, no \texttt{native\_decide}); arXiv preprint. Unrefereed. \\
+Forum post~\cite{Forum647} & $24<n\le10^{13}$ & Lean~4 kernel-checked sieve certificate (October 2026). Unrefereed. \\
+\bottomrule
+\end{tabular}
+\caption{Reported finite-range exclusions for Problem \#647. None of these is a proof of non-existence.}
+\label{tab:computations}
+\end{table}
+
+\subsubsection*{Reported structural restrictions (unrefereed)}
+Several contributors to the forum thread~\cite{Forum647} have posted elementary necessary conditions on a hypothetical solution $n$. They are recorded here as claims to be checked, not as theorems.
+
+\begin{claim}[Divisibility; reported in~\cite{Forum647}]\label{claim:2520}
+Any solution $n>84$ is divisible by $2520=\lcm(1,\dots,9)$. This was first posted with a sequence of congruence arguments. Later posts report a refinement to $41$ residue classes for $n/2520$ modulo $46189=11\cdot13\cdot17\cdot19$, said to be checked in Lean~\cite{Hughes2026}.
+\end{claim}
+
+\begin{claim}[Prime-chain conditions; reported in~\cite{Forum647}]\label{claim:chain}
+Applying~\eqref{eq:shifts} at small shifts $k$ is reported to force several linear forms in $n$ to be prime simultaneously, placing every solution inside one of two explicit families of prime $7$-tuples. With Brun's sieve, this is said to give the unconditional density bound
+\[
+  \#\{\,24<n\le x:\ n \text{ satisfies~\eqref{eq:main}}\,\}\;\ll\; \frac{x}{(\log x)^{7}},
+\]
+and later a stronger bound of the shape $x\exp\bigl(-(\log\log x)^{2-o(1)}\bigr)$~\cite{Hughes2026}.
+\end{claim}
+
+A forum contributor observed that, since $2520N-1$ and $1260N-1$ would both have to be prime, infinitely many solutions of this shape would give infinitely many Sophie Germain primes~\cite{Forum647}. This illustrates why an \emph{infinitude} statement seems out of reach. It does not affect the existence of a single example.
+
+These reductions narrow the set of candidates, but by their authors' own account they are density-zero or finite-range results and do not resolve the problem. One post suggests that no finite collection of sieve stages of this type can prove non-existence~\cite{Forum647}. That is also a heuristic claim, and it is unverified.
+
+\subsubsection*{Withdrawn or refuted claims}
+In January 2026 a claimed complete proof of non-existence, based on covering $n>24$ by ``domination intervals'' generated by record values of $m+\tau(m)$, was posted together with a partial Lean formalization. Tao pointed out that its asymptotic step was unjustified and that the Lean code assumed this step as an axiom~\cite{Forum647}. The claim is described as withdrawn in~\cite{MianSiddique2026}. This episode illustrates the standard of evidence adopted in this project: a formal proof is only as good as its axioms and its statement.
+
+% =====================================================================
+\section{Research Objectives}\label{sec:objectives}
+% =====================================================================
+
+The investigation that follows this document will try to:
+
+\begin{enumerate}[label=\textbf{O\arabic*.}, leftmargin=*]
+  \item \textbf{Decide the problem:} determine whether an integer $n>24$ satisfying~\eqref{eq:main} exists.
+  \item \textbf{Exhibit an example} with a fully verifiable certificate (a factorization of each $n-k$ with $k$ small), if one exists.
+  \item \textbf{Prove non-existence}, if that is the truth, by an argument valid for \emph{all} $n>24$ and not only for a finite range.
+  \item \textbf{Establish bounds}, for example on the growth of $\Dl(n)$ toward Conjecture~\ref{conj:infty}, or on the counting function of candidate $n$.
+  \item \textbf{Identify structure:} independently verify (or refute) the reported reductions of Section~\ref{subsec:specific}, and look for structural properties that simplify~\eqref{eq:shifts}.
+  \item \textbf{Develop computational methods} that are reproducible, use exact arithmetic, and produce independently checkable certificates.
+  \item \textbf{Formalize} the key verified results in Lean~4 with Mathlib, against the community formal statement~\cite{FormalConjectures647}, where feasible.
+\end{enumerate}
+
+Any result will be classified according to the standards in the repository README: established, previously published, conjectural, computational, original-proven, or formally verified.
+
+% =====================================================================
+\section{Computational and Formal Methods}\label{sec:methods}
+% =====================================================================
+
+\emph{No computations or formalizations have been carried out for this document.} The following describes the planned toolset only.
+
+\subsection{Computation}
+\begin{itemize}
+  \item \textbf{Python} with exact arbitrary-precision integers, and \texttt{sympy} or \texttt{gmpy2} for factorization and primality testing.
+  \item \textbf{SageMath}, where its number-theoretic library (factorization, sieving, congruence solving) is convenient.
+  \item \textbf{Exact integer arithmetic only.} No floating-point step will be used in any decision that a certificate depends on.
+  \item \textbf{Prime factorization} as the basic certificate. A factorization of $n-k$ certifies a lower bound on $\tau(n-k)$, and such certificates can be checked independently of the code that found them.
+  \item \textbf{Reproducibility:} all code, parameters, ranges and hardware details are recorded under \texttt{experiments/}. Every claimed range is stated exactly.
+\end{itemize}
+
+\subsection{Formal verification}
+\begin{itemize}
+  \item \textbf{Lean~4} with \textbf{Mathlib}, which provides \texttt{Nat.divisors} and the corresponding cardinality, together with multiplicativity lemmas.
+  \item Formal results will be stated against the existing formal statement~\cite{FormalConjectures647}, so that they compose with other work.
+  \item Axioms will be audited explicitly (\texttt{\#print axioms}). Results relying on \texttt{native\_decide} or on additional axioms will be labelled as such.
+\end{itemize}
+
+\subsection{Use of AI}
+Claude Code and other AI tools may be used for literature search, exploration, programming and drafting. Every mathematical claim will be checked by the author, and every AI contribution will be disclosed. Following~\cite{BloomChanges2026}, any write-up will be prepared and understood by the author, not generated wholesale.
+
+% =====================================================================
+\section{Conclusion}\label{sec:conclusion}
+% =====================================================================
+
+Erd\H{o}s Problem \#647 asks whether the trivially best-possible bound $\Dl(n)=2$ for the running maximum of $m+\tau(m)$ is attained for any $n>24$. Equivalently, it asks whether all the divisor constraints $\tau(n-k)\le k+2$, for $1\le k<n$, can hold at once. The problem sits where the global sparsity of $\tau$ meets the local prime-constellation behaviour of consecutive integers. Erd\H{o}s expected the answer to be no, and offered \pounds 25 for a counterexample to that expectation.
+
+Extensive computations reported since 2025 have found no example up to very large bounds. Several unrefereed reductions confine any solution to sparse arithmetic families. None of this resolves the problem. \textbf{The central question remains open and is the subject of the investigation that this document sets up.}
+
+\subsection{Items not independently verified}\label{subsec:unverified}
+\begin{itemize}
+  \item The wording of the problem and of Erd\H{o}s's remarks in the original sources~\cite{Erdos1979MathMag,Erdos1979Acta,Erdos1980Survey,Erdos1992Eureka,Erdos1995Octogon}. This draft relies on~\cite{Bloom647} and~\cite{OEIS_A087280}.
+  \item Volume or issue numbers for~\cite{Erdos1979Acta,Erdos1992Eureka,Erdos1995Octogon}.
+  \item Any discussion of the problem before 1979.
+  \item Whether a non-existence proof is eligible for the prize, and whether any claim has been lodged with the prize administrator.
+  \item All computations and reductions in Section~\ref{subsec:specific}.
+  \item The absence of refereed partial results; a systematic MathSciNet and zbMATH search is still to be done.
+\end{itemize}
+
+\section*{Acknowledgements}
+The problem statement, its history and the references to Erd\H{o}s's papers are drawn from T.~F.~Bloom's \emph{Erd\H{o}s Problems} website~\cite{Bloom647}, which also acknowledges Terence Tao for this problem. Claude Code (Anthropic) was used to help assemble the literature survey and typeset this draft. All content has been, or will be, checked by the author.
+
+\bibliographystyle{amsplain}
+\bibliography{references}
+
+\end{document}

@@ -1,0 +1,222 @@
+% =====================================================================
+%  Research paper template: math-papers
+%
+%  Usage:  cp templates/research-paper-template.tex NN-project/paper/main.tex
+%          cp templates/references-template.bib     NN-project/paper/references.bib
+%  Build:  latexmk -pdf -outdir=build main.tex
+%
+%  Suitable for number theory, combinatorics, algebra and related fields.
+%  Replace every <PLACEHOLDER>. Delete sections that do not apply.
+% =====================================================================
+\documentclass[11pt]{amsart}
+
+% ---------------------------------------------------------------------
+% Packages
+% ---------------------------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{listings}          % code listings (optional)
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue!50!black]{hyperref}
+\usepackage[capitalise,nameinlink]{cleveref}  % must load after hyperref
+
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,breaklines=true,frame=single}
+
+% ---------------------------------------------------------------------
+% Theorem environments
+% ---------------------------------------------------------------------
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem*{theorem*}{Theorem}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{observation}[theorem]{Computational observation}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem*{notation}{Notation}
+
+% The `proof` environment is provided by amsthm:
+%   \begin{proof} ... \end{proof}
+%   \begin{proof}[Proof of \cref{thm:main}] ... \end{proof}
+
+\numberwithin{equation}{section}
+
+% ---------------------------------------------------------------------
+% Macros
+% ---------------------------------------------------------------------
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\F}{\mathbb{F}}
+\DeclareMathOperator{\lcm}{lcm}
+\DeclareMathOperator{\rad}{rad}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\floor}[1]{\left\lfloor #1 \right\rfloor}
+\newcommand{\ceil}[1]{\left\lceil #1 \right\rceil}
+
+% Margin note for drafts (comment out the second line for the final version)
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+% \renewcommand{\todo}[1]{}
+
+% ---------------------------------------------------------------------
+% Front matter
+% ---------------------------------------------------------------------
+\title[<Short title>]{<Full Title of the Paper>}
+
+\author{<Author Name>}
+\address{<Department>, <Institution>, <City>, <Country>}
+\email{<email@example.com>}
+
+% \author{<Second Author>}
+% \address{...}
+% \email{...}
+
+\date{\today}
+\keywords{<keyword one>, <keyword two>}
+\subjclass[2020]{Primary <11XXX>; Secondary <05XXX>}
+
+\begin{document}
+
+\begin{abstract}
+<One paragraph: the problem, its context, what this paper proves (or establishes), and the methods used. State clearly whether the paper contains new results, partial results, computations, or background only.>
+\end{abstract}
+
+\maketitle
+
+% Delete this box for a paper with new results that have been checked.
+\noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\small
+\textbf{Status.} <Draft / background only / contains new results (checked by author) / independently reviewed / formally verified>.}}
+
+\tableofcontents
+
+% =====================================================================
+\section{Introduction}\label{sec:intro}
+% =====================================================================
+<Context and motivation. Why is the question interesting? Summarize the main results informally, then state the main theorem precisely.>
+
+\begin{theorem}\label{thm:main}
+<Main result.>
+\end{theorem}
+
+\subsection*{Organization}
+<Section-by-section overview.>
+
+% =====================================================================
+\section{Mathematical Preliminaries}\label{sec:prelim}
+% =====================================================================
+\begin{notation}
+<Conventions: $\N$, asymptotic notation, logarithms, etc.>
+\end{notation}
+
+\begin{definition}\label{def:key}
+<Key definition.>
+\end{definition}
+
+\begin{lemma}[<Standard result; cite source>]\label{lem:standard}
+<Statement.> \cite{<key>}
+\end{lemma}
+
+% =====================================================================
+\section{Problem Statement}\label{sec:problem}
+% =====================================================================
+\begin{problem}[<Attribution>]\label{prob:main}
+<Exact statement, verified against the original source.>
+\end{problem}
+
+<Equivalent formulations, and any conventions (e.g. positive integers) that the statement leaves implicit.>
+
+% =====================================================================
+\section{Historical Background}\label{sec:history}
+% =====================================================================
+<Who posed the problem, when and where (with primary citations). Prizes, with the source and the conditions. Mark unverified details explicitly.>
+
+% =====================================================================
+\section{Existing Literature}\label{sec:literature}
+% =====================================================================
+\subsection{Established results}
+<Refereed results, with citations.>
+
+\subsection{Unrefereed reports}
+<Preprints, computations and announcements. Label them clearly as unrefereed.>
+
+% =====================================================================
+\section{Main Results}\label{sec:results}
+% =====================================================================
+<Precise statements of all new results. Mark which are new and which are known.>
+
+\begin{proposition}\label{prop:example}
+<Statement.>
+\end{proposition}
+
+\begin{corollary}\label{cor:example}
+<Statement.>
+\end{corollary}
+
+% =====================================================================
+\section{Proofs}\label{sec:proofs}
+% =====================================================================
+\begin{proof}[Proof of \cref{prop:example}]
+<Complete, rigorous argument.>
+\end{proof}
+
+\begin{proof}[Proof of \cref{thm:main}]
+<Complete, rigorous argument.>
+\end{proof}
+
+% =====================================================================
+\section{Computational Experiments}\label{sec:computation}
+% =====================================================================
+<Algorithms, exact ranges, hardware, run time, software versions, and a link to the code (e.g. ../experiments/). Use exact arithmetic. Never generalize a finite computation into a general claim.>
+
+\begin{observation}\label{obs:example}
+<Exactly what was computed, over exactly which range.>
+\end{observation}
+
+% =====================================================================
+\section{Formal Verification}\label{sec:formal}
+% =====================================================================
+<Lean 4 / Mathlib version, the exact formal statement (and how it matches \cref{prob:main}), and the axioms used (\texttt{\#print axioms}). Report any \texttt{sorry}, \texttt{native\_decide} or custom axioms.>
+
+\begin{lstlisting}[language={},caption={Formal statement}]
+theorem main_result : <statement> := by
+  <proof>
+\end{lstlisting}
+
+% =====================================================================
+\section{Discussion}\label{sec:discussion}
+% =====================================================================
+<Limitations, why the methods stop where they do, related open questions, and further directions.>
+
+% =====================================================================
+\section{Conclusion}\label{sec:conclusion}
+% =====================================================================
+<Summary of what has and has not been established.>
+
+\section*{Acknowledgements}
+<Funding, people, and a disclosure of any AI assistance: which tools were used and for what.>
+
+\bibliographystyle{amsplain}
+\bibliography{references}
+
+% \appendix
+% \section{<Supplementary material>}
+
+\end{document}

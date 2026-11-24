@@ -1,0 +1,140 @@
+# =====================================================================
+#  .gitignore for a mathematics research repository
+#
+#  Policy:
+#   * Source files (.tex, .bib, .lean, .py, .sage, .md, .ipynb) are
+#     always tracked.
+#   * Build products go in `build/` directories, which are ignored.
+#   * PDFs are NOT ignored globally. A final PDF that you want to keep
+#     (e.g. paper/main.pdf for a released version) can be committed
+#     normally. Only PDFs produced inside build/ are ignored.
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# LaTeX auxiliary and intermediate files
+# ---------------------------------------------------------------------
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.brf
+*.fdb_latexmk
+*.fls
+*.glg
+*.glo
+*.gls
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex
+*.synctex.gz
+*.synctex(busy)
+*.thm
+*.toc
+*.vrb
+*.xdv
+*.dvi
+*-blx.bib
+*.auxlock
+*.figlist
+*.makefile
+*.mtc*
+*.maf
+_minted*/
+*.pyg
+.texpadtmp/
+*.tdo
+
+# latexmk / editor build output directories (use `latexmk -outdir=build`)
+build/
+out/
+_build/
+
+# ---------------------------------------------------------------------
+# Lean 4 / Lake build artifacts
+#   Keep: lakefile.lean / lakefile.toml, lean-toolchain, lake-manifest.json
+# ---------------------------------------------------------------------
+.lake/
+lake-packages/
+*.olean
+*.ilean
+*.trace
+*.c.o
+
+# ---------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env/
+.python-version
+.conda/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# SageMath (preparsed .sage files)
+*.sage.py
+
+# ---------------------------------------------------------------------
+# Large or regenerable experiment output
+#   Put bulky raw output in experiments/**/output/. Commit small,
+#   curated result files elsewhere.
+# ---------------------------------------------------------------------
+**/experiments/**/output/
+*.tmp
+
+# ---------------------------------------------------------------------
+# Secrets
+# ---------------------------------------------------------------------
+.env
+.env.*
+*.pem
+
+# ---------------------------------------------------------------------
+# Operating-system files
+# ---------------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+*~
+.directory
+
+# ---------------------------------------------------------------------
+# Editors and IDEs (personal configuration)
+# ---------------------------------------------------------------------
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*.sublime-workspace
+.cursor/
+\#*\#
+.\#*
