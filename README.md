@@ -1,4 +1,4 @@
-# math-papers
+# Math Papers
 
 **Independent investigations into open problems in mathematics**
 
